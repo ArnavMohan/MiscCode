@@ -1,5 +1,6 @@
 # MiscCode
 COMPUTER SKILLS  : Last updated on Jan 01 2018
+
 Advanced level: I have had significant instruction on these and used these extensively for at least 3 years in multiple and complex projects.
 OS: Android
 Languages: Java, Python, C++
