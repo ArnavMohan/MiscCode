@@ -1,0 +1,107 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amssymb}
+\usepackage[margin=1in]{geometry}
+\usepackage[options ]{algorithm2e}
+
+
+
+\title{Geodesic Paths in & $\mathbb{R}^3$}
+\author{Arnav Mohan }
+\date{May 2018}
+
+\usepackage{natbib}
+\usepackage{graphicx}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+A Geodesic Path is a length minimizing curve along a surface in $\mathbb{R}^3$. One  well known use of geodesic paths is great circles. Used to plan air traffic, these paths minimize the distance travelled between two points on a sphere. In this paper, we demonstrate the derivation of explicit forms of geodesic curves on different surfaces. Finally, we demonstrate a Mathematica simulation to plot geodesic curves on any parameterizable surface in $\mathbb{R}^3$.
+
+\section{Planar Space}
+The shortest path between two points on a plane is a straight line. A general equation for a straight line is 
+\begin{equation}
+    ax+by=c
+\end{equation}
+where $a$, $b$, and $c$ are constant. The key property of a line is that the direction does not change. The unit tangent vector to the line remains constant. The speed does not need to be constant, just the direction. It is useful to keep the velocity constant when parameterizing the curve. The easiest way to do this is to use the arc length as a parameter along the curve. In two dimensions, any curve can be described by its position $(x,y)$ with $x$ and $y$ being functions of the arclength $s$ on the curve. Let the unit tangent vector $\bold{\vec{T}} = \Big(\frac{dx}{ds}, \frac{dy}{ds}\Big)$. The condition that the curve must be straight is equivalent to the acceleration vector vanishing. This gives that $\vec{0} = \Big(\frac{d^2 x}{ds^2}, \frac{d^2 y}{ds^2}\Big)$.This is simply another way of defining a straight line in $\mathbb{R}^2$, but it will prove more useful when generalizing the notion of straight lines to curved surfaces.
+
+\section{Spheres}
+In spherical coordinates $(r, \theta, \phi)$, the differential for path length is given by
+\begin{equation}
+ds^2 = dr^2 (r d \theta)^2 + ( r \sin^2\theta d\phi)^2
+\end{equation}
+where $r$ is the radial distance from the origin, $\theta$ is the polar angle from the $z^+$ axis and $\phi$ is the angle from the $x$ axis in the $xy$ plane. For these curves to lie on the surface of a sphere with radius $r=R$, the total path length is given by $\int_a^b ds = R\int_a^b \sqrt{1+\sin^2\theta \phi^2} d\theta = \int_a^b f(\theta, \phi)d\theta$ between points $a$ and $b$. For this analysis, $\theta$ is designated as the independent variable. I use the notation $x'$ to represent $\frac{dx}{d\theta}$. Since the integrand $f$ does not depend on $\phi$, $\frac{\partial f}{\partial \phi}$ is a constant. Let this constant be $a$. This gives us
+
+\begin{equation}
+    \frac{\partial f}{\partial \phi} = a = \frac{\sin^2\theta \phi}{\sqrt{1+\sin^2\theta \phi^2}}
+\end{equation}
+
+Now solving this equation for $\phi$, we find that
+
+\begin{equation}
+    \phi = \frac{a}{\sin\theta \sqrt{\sin^2 \theta - a^2}}
+\end{equation}
+
+If we integrate this from a point $(\theta_1, \phi_1)$ to a general point $(\theta, \phi)$,
+\begin{equation}
+    \phi-\phi_1 = \int_{\theta_1}^{\theta} \frac{a}{\sin\mu \sqrt{\sin^2 \mu - a^2}} d\mu
+\end{equation}
+
+Which when simplified, gives an explicit relationship between $\phi$ and $\theta$
+\begin{equation}
+    \phi - \phi_1 = \cos^{-1}(\frac{a\cot \theta}{\sqrt{1-a^2}})-\cos^{-1}(\frac{a\cot \theta_1}{\sqrt{1-a^2}})
+\end{equation}
+
+This equation is the general form for a geodesic curve on a sphere. Because this is a closed formula, it can be directly used to plot curves on this surface. However, we needed the basic parameterization of a sphere in order to derive this.
+
+\section{General Space}
+For a surface given by $x=x(u,v), y=y(u,v)$, and $z=z(u,v)$, the geodesic is defined as the minimization of the arc length, $L=\int ds = \int \sqrt{dx^2+dy^2+dz^2}$.
+Because $x$ is parameterized in terms of $u$ and $v$, $dx=\frac{\partial x}{\partial u} du+\frac{\partial x}{\partial v} dv$. 
+It follows that $dx^2 = (\frac{\partial x}{\partial u})^2 du^2 + 2\frac{\partial x}{\partial u}\frac{\partial x}{\partial v}du dv + (\frac{\partial x}{\partial v})^2 dv^2$
+
+By applying similar reasoning to $dy$ and $dz$,
+\begin{equation}
+    L = \int \sqrt{\bigg(\Big(\frac{\partial x}{\partial u}\Big)^2+\Big(\frac{\partial y}{\partial u}\Big)^2+\Big(\frac{\partial z}{\partial u}\Big)^2\bigg) du^2 + 2\Big(\frac{\partial x}{\partial u}\frac{\partial x}{\partial v} + \frac{\partial y}{\partial u}\frac{\partial y}{\partial v} + \frac{\partial z}{\partial u}\frac{\partial z}{\partial v}\Big)du dv + \bigg(\Big(\frac{\partial x}{\partial u}\Big)^2+\Big(\frac{\partial y}{\partial u}\Big)^2+\Big(\frac{\partial z}{\partial u}\Big)^2\bigg) dv^2}
+\end{equation}
+
+To simplify this expression, let 
+\begin{equation}
+    F_U = \Big(\frac{\partial x}{\partial u}\Big)^2+\Big(\frac{\partial y}{\partial u}\Big)^2+\Big(\frac{\partial z}{\partial u}\Big)^2, 
+    G = \frac{\partial x}{\partial u}\frac{\partial x}{\partial v} + \frac{\partial y}{\partial u}\frac{\partial y}{\partial v} + \frac{\partial z}{\partial u}\frac{\partial z}{\partial v}, 
+    F_V = \Big(\frac{\partial x}{\partial u}\Big)^2+\Big(\frac{\partial y}{\partial u}\Big)^2+\Big(\frac{\partial z}{\partial u}\Big)^2
+\end{equation}
+
+Substituting into equation $(7)$, $L = \int \sqrt{F_U du^2 + 2G du dv + F_V dv^2}$. To further simplify, let $v'=\frac{dv}{du}$ and $u'=\frac{du}{dv}$. Therefore from equation $1$, $L=\int \sqrt{F_U u'^2 + 2Gu' + F_V v'^2}du$
+
+This integral takes the form of a Euler-Lagrange Differential Equation. This states that if $J$ is defined as an integral of the form $J=\int f(t,y,y')dt$, where $y'=\frac{dy}{dt}$, then $\frac{\partial f}{\partial y} - \frac{d}{dt}\Big(\frac{\partial f}{\partial y'}\Big)=0$.
+
+Applying this theorem, 
+\begin{equation}
+\frac{\frac{\partial F_U}{\partial v} + 2v'\frac{\partial G}{\partial v} + v'^2\frac{\partial F_V}{\partial v}}{2\sqrt{F_U u'^2 + 2Gu' + F_V v'^2}} - \frac{d}{du}\frac{G + F_V v'}{\sqrt{F_U u'^2 + 2Gu' + F_V v'^2}} =0
+\end{equation}
+
+When $F_U$, $G$, $F_V$ are functions of $u$,
+\begin{equation}
+    \frac{G+F_V v'}{\sqrt{F_U u'^2 + 2Gu' + F_V v'^2}} = c
+\end{equation}
+Which when simplified,
+\begin{equation}
+    v' = \frac{G(c^2 - F_V) \pm \sqrt{G^2 (F_V - c^2)^2 - F_V (F_V - c^2)(G^2 - F_U c^2)}}{F_V (F_V - c^2)}
+\end{equation}
+Therefore, the geodesic path is given by $v = \int v' du$, which is not computed in this analysis.
+
+\section{Simulation}
+Given a surface in $\mathbb{R}^3$ and two points $(u_1,v_1)$ and $(u_2, v_2)$, I have constructed a Mathematica document that outputs the geodesic curve between these points. The code utilized Mathematica's VariationalMethods package, which includes an Euler differential equation solver. This algorithm is made more efficient by using a minimizing function. This algorithm computes $n$ approximate points along the curve, and continues to optimize these points by minimizing the arclength. This optimal path is plotted around the surface, in $3$ dimensions.
+
+\section{Code}
+\includegraphics[scale=1.15]{codeshuit}
+
+\section{References}
+Dray, Tevian. “The Geodesic Equation.” General Relativity. General Relativity.\\
+Rowland, Todd, and Eric Weisstein. “Geodesic.” MathWorld, Wolfram, mathworld.wolfram.com/Geodesic.html.\\
+“Sphere Geodesic Problem.” Physics. Rolla, Missouri.
+
+\bibliographystyle{plain}
+\end{document}

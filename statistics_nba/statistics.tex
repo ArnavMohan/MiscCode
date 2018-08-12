@@ -1,0 +1,425 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{listings}
+\usepackage{float}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+}
+\usepackage{geometry}
+ \geometry{
+ letterpaper,
+ right=1in,
+ left=1in,
+ top=1in,
+ bottom=1in
+ }
+
+% https://drive.google.com/file/d/1lmMHUtc09dyNz2mfVDpBNkjJO1aOI_XT/view
+%
+%
+% ARJUN: Project instructions ^
+%
+%
+%
+
+\title{The Scorekeeper Bias}
+\author{Arnav Mohan\\ AP Statistics 8}
+\date{23 May 2018}
+
+\usepackage{natbib}
+
+
+\begin{document}
+
+\maketitle
+\begin{abstract}
+    In the National Basketball Association, box score statistics are commonly used to measure and evaluate player performance. Some of these statistics are subjectively recorded, and since box score statistics are recorded by scorekeepers hired by the home team, there is potential for bias. These inconsistencies can have large consequences, especially with the rise of sports betting and fantasy sports. In basketball, assists, blocks, and fouls are all subjectively determined, with both assists and blocks being recorded by the scorekeeper. This project determined the advantage each team received in each of these statistical categories at home versus away using box score data from every NBA game from 2012 to 2018.
+    % Make sure to state a one-sentence summary of whether an advantage exists/how large it is in the abstract.
+\end{abstract}
+\newpage
+\tableofcontents
+\newpage
+\section{Introduction}
+This project seeks to verify whether or not there exists a statistically significant difference between the assist rate, foul rate, and block rate of NBA teams at home versus away. There has been significant research conducted focusing on referee bias towards home teams. In the English Premier League, for example, a study from 2006 demonstrated how referees' decisions can be influenced by crowd noise, home site, and various other factors related to home team advantage \cite{doi:10.1080/02640410601038576}. In the National Hockey League, research has been conducted on the inconsistencies from rink to rink in the recording of scoring data \cite{2014arXiv1412.1035S} These studies demonstrate that certain facilities and certain scorekeepers can influence the recording of statistics.
+\par Foul calls, however, are not the only subjective decisions that are made by outside participants during NBA games. Recording assists and blocks is highly subjective \cite{moore_2015}. The definition of an assist can change from scorekeeper to scorekeeper. For example, if Russell Westbrook passes the ball to his teammate, who takes one dribble left, then shoots, one scorekeeper might give him credit for the pass that led to the shot, while another could apply the textbook definition of a pass that directly leads to a shot \cite{lund_2018}. Perhaps if the scorekeeper was employed by the Oklahoma City Thunder, who would stand to profit tremendously if Westbrook got 10 rather than 9 assists that night, they might nudge the definition slightly. This is not to say that scorekeeping is a corrupt endeavour \cite{craggs_2018}, but as the human scorekeeper during Westbrook's historic triple-double season, how could you not be biased one way or another? Similar reasoning applies when recording blocks. Scorekeepers might disagree on whether an altered shot counts as a block, for example. These minute inconsistencies between scorekeepers in each arena could prove to be influential to NBA players and betters, both of whom depend on their statistics for their livelihood.
+    
+\section{Data Collection}
+
+\subsection{Data Scraping}
+ The data was collected by using a Python web scraping script on ESPN Box Scores (See \hyperlink{htmlcode}{Section 5.1}). These pages are organized by date, which made a time-bounded scraping algorithm feasible. This parser generated a CSV file, which was then used to analyze the variables in question. These box scores are organized as a table of values in HTML (See Figure \ref{figboxscore}). The parser collected statistics in the box score, as well as the home team and date.
+\subsection{Sample}
+In order to draw useful conclusions, it is important to construct a large sample of NBA games. In this sample, it is crucial that it overlap over multiple seasons, to adjust for changes in roster, coaching, and scorekeeping staff. It is also important to take a sample of a section of games small enough to maintain enough continuity of players to adjust for changes in playing styles that occurs every generation. In order to fulfill these requirements, I used box scores from every game from 2012 to 2018. The data collection was not randomized, because the continuity of the scorekeepers would be lost, as would the continuity of the players and styles. If the NBA's history can be viewed as separate generations, each with its own stars, strategies, rules, and philosophies, then this contiguous period from 2012 to the present is the latest generation. This data is a census of the games played by this style and with these rules. The notable changes that help the current NBA stand out is the lack of positions and the end of hand-checking. These prevent any direct statistical comparisons to previous generations of the league. There are a few potential issues to this collection methodology however. Because the game parser is iterated by date, playoff games are included. This means that certain teams are over represented in the data, due to the extra playoff games. For example, the Warriors have competed in the playoffs every year since 2012, and have made it to the finals three times. To address this issue, this analysis uses assist rate, block rate, and foul rate instead of the total values for each team. These values are calculated as
+\begin{equation}
+    \text{Assist Rate} = \frac{\Sigma \text{Assists}}{\Sigma \text{Field Goals Made}}
+\end{equation}
+\begin{equation}
+    \text{Block Rate} = \frac{\Sigma \text{Blocks}}{\Sigma \text{Opponent Field Goals Attempted}}
+\end{equation}
+\begin{equation}
+    \text{Foul Rate} = \frac{\Sigma \text{Personal Fouls}}{48\times \text{Number of Games}}
+\end{equation}
+This adjusts for the differing talent and number of games of different teams over the past few years. These values are computed for each team's home games and away games separately. We would expect the home rates and assist rates to be equal. If the home assist rate is greater, however, it would signal a bias towards the home team. Foul rate is a less reliable statistic, because it is a function of number of minutes. Ideally, foul rate would be computed as a function of the total number of possessions, offense and defense, a team sustained, but this data is impossible to compute accurately. Instead, this analysis used foul rate as a function of number of total minutes played by that team over the entire period of analysis. Because the data does not indicate games that went to overtime, the best approximation of the number of minutes played is $48\times \text{Number of Games}$. As only about $6.3\%$ of games go to overtime \cite{lem_2017}, this approximation is accurate enough. 
+\section{Data Analysis}
+\subsection{Summary Statistics}
+
+\begin{center}
+\begin{tabular}{ ||c|c|c|c|| }
+\hline
+ Team & $\Delta$ Assist Rate & $\Delta$ Block Rate & $\Delta$ Foul Rate\\ [0.5ex] 
+ \hline\hline
+ Hawks & 0.0458 & -0.0004 & 0.0153
+\\
+Celtics & 0.0340 & 0.0084 & 0.0072  
+\\
+Nets & -0.0004 & -0.0020 & 0.0017  
+\\
+Hornets & 0.0451 & 0.0205 & 0.0061  
+\\
+Bulls & 0.0398 & 0.0167 & 0.0158  
+\\
+Cavaliers &  0.0708 & 0.007 & 0.0237  
+\\
+Mavericks & -0.0078 & -0.0025 & 0.0087 
+\\
+Nuggets & 0.0476 & 0.0069 & -0.0013
+\\
+Pistons & 0.0489 & 0.0020 & 0.0033  
+\\
+Warriors & 0.0413 & 0.0032 & 0.0294  
+\\
+Rockets & 0.0209 & 0.0082 & 0.0312  
+\\
+Pacers & -0.0119 & 0.0105 & 0.0323  
+\\
+Clippers  &  0.0483 & 0.0093 & 0.0126  
+\\
+Lakers & 0.0483 & 0.0031 & 0.0176  
+\\
+Grizzlies & -0.0119 & 0.0120 & 0.0043  
+\\
+Heat & -0.0418 & -0.0019 & 0.0103  
+\\
+Bucks & 0.0242 & 0.0034 & 0.0169  
+\\ 
+Timberwolves & 0.0095 & 0.0033 & 0.0009  
+\\
+Pelicans & 0.0379 & 0.0182 & 0.0202  
+\\
+Knicks & -0.0359 & -0.0052 & 0.0180  
+ \\
+Thunder & 0.0102 & 0.0062 & 0.0161  
+\\
+Magic & -0.0003 & 0.0043 & 0.0094  
+\\
+76ers & 0.0554 & 0.0034 & 0.0154  
+\\
+Suns & -0.0306 & 0.0077 & 0.0050  
+\\
+Trail Blazers & 0.0264 & -0.0018 & 0.0325
+\\
+Kings &  -0.0132 &  -0.0038 & -0.0003
+\\
+Spurs & 0.0437 & 0.0063 & 0.0299  
+\\
+Raptors & 0.0185 &  0.0009 & 0.0255  
+\\
+Jazz & -0.0439 & 0.0019 & 0.0049  
+\\
+Wizards & 0.0144 & 0.0066 & 0.0060
+\\
+ \hline
+ League Average & 0.0178 & 0.0051 & 0.0139
+ \\
+ \hline
+\end{tabular}
+\label{tableteams}
+\end{center}
+Based on this data, the teams with positive and negative $\Delta$Assist Rate are evenly split, as well as with $\Delta$Block Rate. For $\Delta$Foul Rate, however, there is a consistent positive value, with only the Nuggets and Kings recieving more fouls at home than away. This pattern could arise from the increased comfort and composure afforded to home teams, but it might also arise from referees' unconscious bias based on the crowd and reactions. It is worth noting that over the period of analysis, the Nuggets and Kings were among the youngest and least successful teams in the league. Perhaps inexperience influenced their reactions on other teams' home floors. Surprisingly, of the teams that recorded a negative $\Delta$assist rate and a negative $\Delta$block rate (Nets, Mavericks, Heat, Knicks, Kings), all but the Kings have made the playoffs more than once since 2012. Of all the teams with a positive $\Delta$assist rate, positive $\Delta$block rate, and positive $\Delta$foul rate, the Cavaliers have the highest overall bias, with $\Delta \text{assist rate} + \Delta \text{block rate} + \Delta \text{foul rate} = 0.1015$.
+\par To compare this to the league averages, The Cavaliers $\Delta$assist rate was the highest in the league, and their $\Delta$foul rate was in the top 5. The distribution of assist rate was more spread out than block rate or foul rate (See Figure \ref{figboxplot}). The Block Rate's median was closer to 0 than Assist Rate or Foul Rate, but almost each teams' foul rate was above 0. On the other end of the spectrum, the Jazz's scorekeeper was particularly stingy about giving assists, even to their own home team. The Jazz ranked last in $\Delta$assist rate. The Knicks were one of the most stingy assist courts, and the most stingy block recorder as well.
+
+\subsection{Hypothesis Test}
+In order to show statistical significance, we will use a two sample t test for difference in mean for each statistic (See Section \ref{rcode}). Let the null hypothesis $H_0: \mu_1 - \mu_2 = 0$, and the alternative hypothesis $H_a: \mu_1 - \mu_2 > 0$. For the sake of this analysis, consider two games to be independent. This is not perfectly accurate, because often teams play on back-to-back nights and are fatigued for the second game. This would not greatly effect the variables studied here, however, as the number of back-to-backs is insignificant in comparison to the total number of games. 
+%Justify your prior claim with "This would not greatly effect the variables studied here, because the number of back-to-back's is insignificant compared to the total number of games. 
+The size of the set of home games for any team is less than $10\%$ of the total number of games in the sample, so the independence condition is satisfied. The sample is a census of the games in this time period, so the random condition is satisfied. While the histograms for the statistics are not approximately normal (See Section \ref{fighistass}), each population has $\ge$ 30 individuals, so the normal condition is satisfied. All tests were performed at $90\%$ confidence.
+\par For $\Delta$assist rate, $\mu_a$ = Home Assist Rate, and $\mu_2$ = Away Assist Rate. This test returned a p-value of $0.002195$ at $29$ degrees of freedom, which is less than the $\alpha$ value of $0.05$. Therefore, we can reject the null hypothesis that the mean assist rate at home is equal to the mean assist rate away. The data provides evidence supporting the alternative hypothesis that the mean assist rate at home is greater than the mean assist rate away.
+\par For $\Delta$block rate, $\mu_a$ = Home Block Rate, and $\mu_2$ = Away Block Rate. This test returned a p-value of $6.19e-5$ at $29$ degrees of freedom, which is less than the $\alpha$ value of $0.05$. Therefore, we can reject the null hypothesis that the mean block rate at home is equal to the mean block rate away. The data provides evidence supporting the alternative hypothesis that the mean block rate at home is greater than the mean block rate away.
+\par For $\Delta$foul rate, $\mu_a$ = Away Foul Rate, and $\mu_2$ = Home Foul Rate. This test returned a p-value of $2.258e-8$ at $29$ degrees of freedom, which is less than the $\alpha$ value of $0.05$. Therefore, we can reject the null hypothesis that the mean foul rate at away is equal to the mean foul rate at home. The data provides evidence supporting the alternative hypothesis that the mean foul rate at home is less than the mean foul rate away.
+
+%I'm not sure how picky your stats teacher is with language, but the correct interpretation for a p-value less than the alpha-value, is "we reject the null hypothesis that the mean assist rate is the same home and away. The sample data provides evidence supporting the alternative hypothesis that the mean home rate is greater than the mean away rate."
+%You probably don't want to outright say "This indicates that the mean home foul rate is less than the mean away foul rate.
+
+%The big assumption you made in your hypothesis test was that all the teams have the same mean difference in assist rates/foul rates/block rates. You may want to justify this more. I would assume home court bias would differ from team to team. 
+\section{Conclusion}
+\subsection{Results}
+This data supports the conclusion that scorekeepers are biased towards their home teams. We found that the mean assist rate and mean block rate for NBA teams since 2012 was greater at home than away, with p-values of $0.0022$ and $6.19e-5$ respectively at 90 percent confidence. This indicates that overall, the data supports the conclusion that NBA teams are recording more assists and blocks at home than away. This presents a variety of confounding variables. It is possible that players are simply more comfortable at home, and thus record better statistics. However, it has been shown that field goal percentage, free throw percentage, and steal rate do not vary with location \cite{moskowitz2011scorecasting}. If these statistics do not improve at home, it is unlikely that the assist rate and block rate would improve due to this cause. Another potential confounding variable is the officiating home teams are often criticized as receiving. It has long been speculated that home teams receive an officiating advantage out of fear of upsetting the home crowd. This data supported the conclusion that NBA teams on average receive fewer fouls at home than away, with a p-value of $2.26e-8$ at 90 percent confidence. This is unlikely to stem from the comfort of home, for the same reason the change in assist rate and block rate are unlikely to result from this variable. However, the officiating might impact the ability of the opposing defense to guard the home team. Assists are often made by passing the ball to an open shooter on the wing, which is a play that can frequently draw fouls, especially if the officials are biased against the defense. Blocks are made by hitting the ball out of the shooter's hand, which can result in a foul if enough contact is made between the players. If the foul rate is the cause of the change in assist rate and block rate, we would expect the steal rate to vary in such a manner because steals are similarly risky plays. However, this statistic has been found to remain relatively constant over home and away games \cite{moskowitz2011scorecasting}, which would invalidate the assumption of foul rate as a confounding variable. There seems to be a similar number of teams with positive and negative $\Delta$assist rate and $\Delta$block rate (See Section \ref{figassplot}). This could be due to the variance of inexperience and talent in the league, but should not be ignored in any future study.
+\subsection{Future Study}
+This study could be improved through analysis of the individual player's statistical variations at home and away. The data only provides information on teams, and doesn't account for individual players, or the changes of team rosters from year to year. If data on player positions and play by play game histories are available, it would be possible to take a sample of all the passes considered potentially assist worthy and compare the number that were recorded assists at home and away. If data on the number of passes each game and the number of shots contested each game was available, we could construct a more accurate definition of assist rate and block rate. In reality, these values should ideally be equal to $\frac{\text{number of assists}}{\text{number of passes}}$ and $\frac{\text{number of blocks}}{\text{number of shots contested}}$. A similar problem occurs with foul data. The foul rate should be $\frac{\text{number of fouls}}{\text{number of possessions}}$, but that data was not available in our box scores. \par This study could be redone by including a larger sample of NBA games, as well as data from other sports where scorekeepers are hired locally and certain statistics are subjectively recorded. It should also include possible confounding variables not measured here, like crowd noise. It should also adjust for changes in individual scorekeepers, and group games by scorekeeper rather than home court. Finally, because this data was not taken from a random sample, its conclusions should be taken accordingly. 
+
+
+\section{Appendix}
+\subsection{Data Scraping Script}
+\hypertarget{htmlcode}{ }
+\begin{lstlisting}[language=Python, caption=ESPN Box Score Web Scraper]
+#Open CSV File
+if args.append:
+  fop = 'a'
+else:
+  fop = 'w'
+f = open(os.path.join(args.dir,'nbadata.csv'),fop)
+
+#Base ESPN URLs
+basedayurl = "http://www.espn.com/nba/scoreboard/_/date/"
+basegameurl = "http://www.espn.com/nba/matchup?gameId="
+#Statistics Collected
+if not args.append:
+f.write("id,Date,Home,Away,Winner,Score_Home,Score_Away,FGM_Home,FGA_Home,
+FGM_Away,FGA_Away,3PM_Home,3PA_Home,3PM_Away,3PA_Away,FTM_Home,FTA_Home,
+FTM_Away,FTA_Away,REB_Home,REB_Away,OR_Home,OR_Away,DR_Home,DR_Away,
+ASS_Home,ASS_Away,ST_Home,ST_Away,BL_Home,BL_Away,TO_Home,TO_Away,POT_Home,
+POT_Away,FBP_Home,FBP_Away,PIP_Home,PIP_Away,PF_Home,PF_Away,TF_Home,
+TF_Away,FF_Home,FF_Away" + '\n')
+#Parse each season
+#NOTE: HTML PARSER, DAY PARSER, GAME PARSER NOT PROVIDED
+for s in sorted(seasons.keys()):
+  if args.start <= seasons[s][1]:   
+  # specified start date is before the end of season 
+    dd = seasons[s][0]
+    if args.start >= dd:            
+    # check is starting in middle of season
+      dd = args.start
+    while dd <= seasons[s][1]:
+      dayurl = basedayurl + str(dd.year) + '{:02d}'.format(dd.month)
+      + '{:02d}'.format(dd.day)
+      day = DayParser()
+      day.parse_url(dayurl)
+      for g in day.get_games():
+        gameurl = basegameurl + g
+        game = GameParser()
+        game.parse_url(gameurl)
+        game.print_game(g,f)
+      dd = dd + datetime.timedelta(1)
+f.close()
+\end{lstlisting}
+\subsection{Example Box Score}
+\begin{figure}[H]
+    \centering
+    \label{figboxscore}
+    \includegraphics[scale=0.7]{bosss}
+    \includegraphics{boxscore}
+    \caption{An Example Box Score for a Game between Boston and Cleveland in Cleveland}
+\end{figure}
+
+\subsection{Boxplot for Assist Rate, Block Rate, Foul Rate}
+\begin{figure}[H]
+    \centering
+    \label{figboxplot}
+    \includegraphics[scale=0.6]{boxplot}
+    \caption{Box Plot for $\Delta$Assist Rate, $\Delta$Block Rate, $\Delta$Foul Rate}
+\end{figure}
+
+\subsection{Histograms for Assist Ratio, Block Rate, Foul Rate}
+\begin{figure}[H]
+    \centering
+    \label{fighistass}
+    \includegraphics[scale=0.6]{histassist}
+    \caption{Histogram for $\Delta$Assist Rate}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \label{fighistblk}
+    \includegraphics[scale=0.6]{histblock}
+    \caption{Histogram for $\Delta$Block Rate}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \label{fighistpfl}
+    \includegraphics[scale=0.6]{histfoul}
+    \caption{Histogram for $\Delta$Foul Rate}
+\end{figure}
+
+\subsection{Code}
+\label{rcode}
+\begin{lstlisting}[language=R, caption=R Code to Perform Data Analysis]
+# IMPORT
+source('get_team_id.R')
+source('team_codes.R')
+#Exclude gameID
+full_box_score = nbadata[,-1]
+#Rename teams according to teamid
+team_ids_home = sapply(full_box_score$Home, get_team_id)
+team_ids_away = sapply(full_box_score$Away, get_team_id)
+#construct dataframe of meaningful statistics
+box_score = cbind(full_box_score$Home, team_ids_home, full_box_score$FGM_Home,
+            full_box_score$FGA_Home, full_box_score$ASS_Home, full_box_score$BL_Home,
+            full_box_score$PF_Home, 
+            full_box_score$Away, team_ids_away, full_box_score$FGM_Away, 
+            full_box_score$FGA_Away, full_box_score$ASS_Away, full_box_score$BL_Away,
+            full_box_score$PF_Away)
+box_score = as.data.frame(box_score)
+
+#
+# FORMAT FOR box_score:
+# V1       team_ids_home V3   V4   V5   V6  V7  V8       
+# hometeam homeid        FMGH FGAH ASSH BLH PFH awayteam 
+#
+# team_ids_away V10   V11  V12  V13 V14
+# awayid        FGMA  FGAA ASSA BLA PFA
+#
+
+nteams = 1:30
+home_ar = rep(NA, 30)
+home_br = rep(NA, 30)
+home_fr = rep(NA, 30)
+away_ar = rep(NA, 30)
+away_br = rep(NA, 30)
+away_fr = rep(NA, 30)
+
+#
+# Construct vectors for each teams assist rate at home and away,
+# block rate at home and away
+# Define assist rate = assists/field goals made
+# Define block rate = blocks/opponent field goals attempted
+# Define foul rate = fouls/minutes played
+#
+
+for(i in 1:30){
+  #Find games where team i is at home/away
+  home_index = which(box_score$team_ids_home == nteams[i])
+  away_index = which(box_score$team_ids_away == nteams[i])
+  
+  #Store each parameter
+  hass = box_score$V5[home_index]
+  hfgm = box_score$V3[home_index]
+  aass = box_score$V12[away_index]
+  afgm = box_score$V10[away_index]
+  hbl = box_score$V6[home_index]
+  afga = box_score$V11[home_index]
+  abl = box_score$V13[away_index]
+  hfga = box_score$V4[away_index]
+  hpf = box_score$V7[home_index]
+  apf = box_score$V14[away_index]
+  
+  #Construct vector from factor
+  home_ar[i] = sum(as.numeric(levels(hass)[hass])) / sum(as.numeric(levels(hfgm)[hfgm]))
+  away_ar[i] = sum(as.numeric(levels(aass)[aass])) / sum(as.numeric(levels(afgm)[afgm]))
+  home_br[i] = sum(as.numeric(levels(hbl)[hbl])) / sum(as.numeric(levels(afga)[afga]))
+  away_br[i] = sum(as.numeric(levels(abl)[abl])) / sum(as.numeric(levels(hfga)[hfga]))
+  home_fr[i] = sum(as.numeric(levels(hpf)[hpf])) / (48*length(home_index))
+  away_fr[i] = sum(as.numeric(levels(apf)[apf])) / (48*length(away_index))
+}
+
+#
+# Compute league average assist rate / block rate / foul rate
+#
+
+#Store each parameter
+hass = box_score$V5
+hfgm = box_score$V3
+aass = box_score$V12
+afgm = box_score$V10
+hbl = box_score$V6
+afga = box_score$V11
+abl = box_score$V13
+hfga = box_score$V4
+hpf = box_score$V7
+apf = box_score$V14
+
+#Compute averages
+avg_ar = sum(as.numeric(levels(hass)[hass]) + as.numeric(levels(aass)[aass])) / 
+  sum(as.numeric(levels(hfgm)[hfgm]) + as.numeric(levels(afgm)[afgm]))
+avg_br = sum(as.numeric(levels(hbl)[hbl]) + as.numeric(levels(abl)[abl])) / 
+  sum(as.numeric(levels(afga)[afga]) + as.numeric(levels(hfga)[hfga]))
+avg_fr = sum(as.numeric(levels(hpf)[hpf]) + as.numeric(levels(apf)[apf])) /
+  (48*30*(length(home_index) + length(away_index)))
+
+#Store results in table
+ar = cbind(nteams,home_ar,away_ar)
+br = cbind(nteams,home_br,away_br)
+fr = cbind(nteams,home_fr,away_fr)
+
+#
+# Plot results
+#
+
+#Plot home assist rate vs away assist rate
+plot(home_ar,away_ar,xlab="Home Team Assist Ratio",ylab="Away Team Assist Ratio",
+     main="Assist Rate for NBA Teams at Home vs. Away")
+#League average
+abline(v=avg_ar,col=2,lty=3)
+abline(h=avg_ar,col=2,lty=3)
+#Regression line
+abline(lm(away_ar~home_ar),col=4)
+#Null hypothesis: X=Y
+abline(a=0,b=1,col=3,lty=4)
+
+#Plot home block rate vs away block rate
+plot(home_br,away_br,xlab="Home Team Block Ratio",ylab="Away Team Block Ratio",
+     main="Block Rate for NBA Teams at Home vs. Away")
+abline(v=avg_br,col=2,lty=3)
+abline(h=avg_br,col=2,lty=3)
+abline(lm(away_br~home_br),col=4)
+abline(a=0,b=1,col=3,lty=4)
+
+#Plot home foul rate vs away foul rate
+plot(home_fr,away_fr,xlab="Home Team Foul Ratio",ylab="Away Team Foul Ratio",
+     main="Foul Rate for NBA Teams at Home vs. Away")
+abline(v=avg_fr,col=2,lty=3)
+abline(h=avg_fr,col=2,lty=3)
+abline(lm(away_fr~home_fr),col=4)
+abline(a=0,b=1,col=3,lty=4)
+
+#
+# Perform significance test
+# Use paired t test
+# H0 = mean(home assist rate) = mean(away assist rate)
+# Ha = mean(home assist rate) > mean(away assist rate)
+#
+
+#Difference between home assist rate and away assist rate
+diff_ar = home_ar - away_ar
+#Histogram to check normality
+hist(diff_ar,xlab="Home Assist Rate - Away Assist Rate", ylab="Number of Teams")
+#Difference between home block rate and away block rate
+diff_br = home_br - away_br
+#Histogram to check normality
+hist(diff_br,xlab="Home Block Rate - Away Block Rate", ylab="Number of Teams")
+#Difference between home foul rate and away foul rate
+diff_fr = away_fr - home_fr
+#Histogram to check normality
+hist(diff_fr,xlab="Away Foul Rate - Home Foul Rate", ylab="Number of Teams")
+#Perform paired t tests
+ttest_ar = t.test(home_ar,away_ar,paired=T, alternative="greater", conf.level = 0.9)
+ttest_br = t.test(home_br,away_br,paired=T, alternative="greater", conf.level = 0.9)
+ttest_fr = t.test(away_fr,home_fr,paired=T, alternative="greater", conf.level = 0.9)
+\end{lstlisting}
+
+\subsection{Plots for Assist Rate, Block Rate, and Foul Rate}
+\begin{figure}[H]
+    \centering
+    \label{figassplot}
+    \includegraphics[scale=0.6]{PlotAssist.png}
+    \caption{Graph of each NBA team's Home Assist Rate vs. Away Assist Rate}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \label{figblkplot}
+    \includegraphics[scale=0.6]{PlotBlock.png}
+    \caption{Graph of each NBA team's Home Block Rate vs. Away Block Rate}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \label{figpflplot}
+    \includegraphics[scale=0.6]{PlotFoul.png}
+    \caption{Graph of each NBA team's Home Foul Rate vs. Away Foul Rate}
+\end{figure}
+
+
+\bibliographystyle{plain}
+\bibliography{references}
+\end{document}
